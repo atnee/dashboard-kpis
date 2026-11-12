@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Indicadores dos sistemas fotovoltaicos: geração, economia, emissões e disponibilidade.">
+  <title>Observatório Solar · KPIs Fotovoltaicos</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231e5a43'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%23e8c577'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+  <script defer src="assets/vendor/xlsx.full.min.js"></script><script defer src="assets/seed.js"></script><script defer src="assets/model.js"></script><script defer src="assets/app.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="./"><span class="sun">☀</span><span>Observatório<span class="brand-sub">SOLAR · UFPA</span></span></a>
+  <p class="nav-label">GESTÃO DE ENERGIA</p>
+  <nav aria-label="Seções do aplicativo">
+    <button class="nav active" data-tab="overview" aria-current="page"><span>◫</span> Visão geral</button>
+    <button class="nav" data-tab="readings"><span>≋</span> Leituras e parâmetros</button>
+    <button class="nav" data-tab="units"><span>▦</span> Unidades</button>
+    <button class="nav" data-tab="photos"><span>▧</span> Vistorias</button>
+  </nav>
+  <div class="side-bottom"><span class="status-dot"></span> Versão gratuita<p>Seus dados ficam neste navegador. Faça um backup para guardá-los ou usar em outro computador.</p><button id="backup" class="secondary">↓ Baixar backup</button><label class="restore">Restaurar backup<input type="file" id="restore" accept=".json,application/json" hidden></label><small>CEAMAZON · Eficiência energética</small></div>
+</aside>
+<main>
+  <header class="topbar"><span>PAINEL DE INDICADORES</span><span id="storage-status">Carregando dados…</span></header>
+  <section class="heading"><div><p class="eyebrow">ENERGIA QUE TRANSFORMA</p><h1 id="page-title">Panorama fotovoltaico</h1><p class="subtitle">Acompanhe o desempenho dos sistemas e o impacto da energia solar.</p></div><div class="actions"><label class="button secondary">↑ Importar planilha<input id="import" type="file" accept=".xlsx,.xlsm" hidden></label><button class="primary" id="print">↓ Relatório PDF</button></div></section>
+  <div id="message" role="status" aria-live="polite" hidden></div>
+  <section class="filters" aria-label="Filtros do relatório"><label>De<input type="month" id="start"></label><label>Até<input type="month" id="end"></label><label class="group-filter">Grupo<select id="group"><option value="">Todos os grupos</option></select></label><span id="period-label"></span></section>
+  <section id="overview" class="panel">
+    <div class="metrics" id="metrics"></div>
+    <div class="chart-grid"><article class="card"><div class="card-heading"><div><p class="eyebrow">EVOLUÇÃO DO PERÍODO</p><h2>Energia mês a mês</h2></div><span class="legend"><i></i>Gerada <i class="lost"></i>Perdida</span></div><div id="chart" class="chart"></div><p class="hint">Valores em kWh · A perda representa a geração estimada durante a inoperância.</p></article><article class="card impact"><p class="eyebrow">APROVEITAMENTO DA ENERGIA</p><h2>Disponibilidade</h2><div id="availability"></div><p>Relação entre a energia gerada e o potencial estimado (geração + perdas).</p><div id="loss-value"></div></article></div>
+    <article class="card"><div class="card-heading"><div><p class="eyebrow">DESEMPENHO DOS SISTEMAS</p><h2>Indicadores por unidade</h2></div><button id="csv" class="secondary">Exportar CSV</button></div><div class="table-wrap"><table><thead><tr><th>Unidade / grupo</th><th>Gerada (kWh)</th><th>Perdida (kWh)</th><th>Economia</th><th>Disponibilidade</th></tr></thead><tbody id="unit-summary"></tbody></table></div></article>
+    <article class="card notes"><h2>Observações do relatório</h2><p class="hint">Incluídas na impressão do período selecionado.</p><textarea id="notes" rows="4" placeholder="Registre análises, intervenções e pontos de atenção…"></textarea><button id="save-notes" class="secondary">Salvar observações</button></article>
+    <section id="print-photos" class="print-only"></section>
+  </section>
+  <section id="readings" class="panel" hidden><div class="form-grid"><article class="card"><h2>Registrar ou corrigir leitura</h2><p class="hint">A mesma unidade, competência e tipo substituem a leitura anterior.</p><form id="reading-form"><label>Unidade<select name="unit" class="unit-select" required></select></label><label>Competência<input name="month" type="month" required></label><label>Tipo<select name="type"><option value="gerada">Energia gerada</option><option value="perdida">Energia perdida</option></select></label><label>Energia (kWh)<input name="value" type="number" step="any" min="0" required></label><button class="primary">Salvar leitura</button></form></article><article class="card"><h2>Parâmetros mensais</h2><p class="hint">Economia = kWh × tarifa. Emissões evitadas = MWh × fator. Na falta de parâmetro, usa-se o último mês anterior conhecido.</p><form id="param-form"><label>Competência<input name="month" type="month" required></label><label>Tarifa (R$/kWh)<input name="tariff" type="number" step="any" min="0" required></label><label>Fator de emissão (tCO₂/MWh)<input name="factor" type="number" step="any" min="0" required></label><button class="primary">Salvar parâmetros</button></form></article></div><article class="card"><h2>Leituras no período</h2><div class="table-wrap"><table><thead><tr><th>Competência</th><th>Unidade</th><th>Tipo</th><th>Energia (kWh)</th></tr></thead><tbody id="reading-table"></tbody></table></div></article></section>
+  <section id="units" class="panel" hidden><article class="card"><h2>Cadastro de unidades</h2><p class="hint">A participação no painel controla a geração; as perdas continuam contabilizadas.</p><form id="unit-form" class="unit-form"><label>Unidade<select name="id" id="edit-unit"></select></label><label>Nome<input name="name" required maxlength="150"></label><label>Grupo<input name="group" required maxlength="100" list="groups"></label><datalist id="groups"></datalist><label>Capacidade (kWp)<input name="capacity" type="number" min="0" step="any" required></label><label>Área (m²)<input name="area" type="number" min="0" step="any" required></label><label class="check"><input name="panel" type="checkbox"> Incluir geração no painel</label><button class="primary">Salvar unidade</button></form></article><article class="card"><div id="unit-cards" class="unit-cards"></div></article></section>
+  <section id="photos" class="panel" hidden><article class="card"><h2>Registro de vistoria</h2><p class="hint">As fotos são salvas neste navegador e incluídas no backup. O relatório inclui as fotos do período e grupo selecionados.</p><form id="photo-form"><div class="form-grid"><label>Unidade<select name="unit" class="unit-select" required></select></label><label>Competência<input name="month" type="month" required></label></div><label>Legenda<input name="caption" maxlength="500" required></label><label>Fotos<input name="files" type="file" accept="image/jpeg,image/png,image/webp" multiple required></label><button class="primary">Adicionar fotos</button></form></article><div id="photo-gallery" class="gallery"></div></section>
+  <footer>Observatório Solar <span>Dados locais · Sem mensalidade · Sem envio de planilhas a servidores</span></footer>
+</main>
+<noscript>Ative o JavaScript para usar este painel.</noscript>
+</body></html>

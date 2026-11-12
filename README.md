@@ -1,5 +1,36 @@
 # Sistema de KPIs de Sistemas Fotovoltaicos
 
+## Página web gratuita
+
+**Acesse: https://atnee.github.io/dashboard-kpis/**
+
+A versão em `index.html` funciona diretamente no navegador e é publicada pelo
+GitHub Pages, pela branch `main`, pasta raiz. Não exige Python, Render, conta
+de hospedagem paga ou processo de build. A versão Python original permanece
+disponível para uso local.
+
+- Indicadores, filtros por grupo e período, gráficos e exportação CSV.
+- Importação da planilha Excel existente, edição de leituras, parâmetros e unidades.
+- Fotos de vistoria, observações e relatório pela opção **Salvar como PDF** da
+  janela de impressão do navegador.
+- Dados salvos no navegador usando IndexedDB; **Baixar backup** exporta um JSON
+  com leituras, parâmetros, cadastro, notas e fotos. **Restaurar backup** permite
+  transferir o trabalho para outro navegador ou computador.
+
+O painel começa com os dados da planilha já versionada no repositório. Importações
+e alterações posteriores são locais: não são enviadas ao GitHub ou a um servidor,
+nem sincronizadas entre usuários. Limpar os dados do site ou usar navegação
+privada pode apagar esse trabalho; mantenha backups. A página é pública e não
+exige senha. A biblioteca de leitura de planilhas é distribuída localmente em
+`assets/vendor`, com sua licença.
+
+Para testar: `python -m http.server 8765`, depois abra `http://localhost:8765`.
+Verificações: `node --test tests/web.test.cjs`. Para atualizar os dados iniciais
+após mudar a planilha versionada: `python scripts/export_web_seed.py`.
+
+Os arquivos do Render abaixo são uma alternativa opcional para a versão Python;
+não são usados pela página gratuita e nenhum serviço pago é necessário.
+
 Armazena as leituras mensais de geração dos sistemas fotovoltaicos e exporta um
 relatório em PDF para qualquer período selecionado.
 
