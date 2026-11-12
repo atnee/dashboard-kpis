@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ relatorio.titulo }}</title>
+<style>{{ css | safe }}</style>
+</head>
+<body>
+
+{% macro topo(assunto, detalhe) %}
+<div class="topo">
+    <div class="identidade">
+        <div class="marca">{% if logo %}<img src="{{ logo }}" alt="CEAMAZON">{% else %}CEAMAZON{% endif %}</div>
+        <div class="assunto">{{ assunto }}<span>{{ detalhe }}</span></div>
+    </div>
+    <div class="recorte">
+        <div class="janela">{{ periodo_rotulo }}</div>
+        <div class="emissao">Emitido em {{ gerado_em }}</div>
+    </div>
+</div>
+{% endmacro %}
+
+<!-- Página 1: o que os sistemas entregaram -->
+<div class="pagina">
+    {{ topo(relatorio.titulo, relatorio.subtitulo) }}
+
+    <div class="faixa">
+        <div class="indicador">
+            <div class="valor">{{ totais_gerada.energia | energia_curta }}<small>{{ totais_gerada.energia | unidade_energia }}</small></div>
+            <div class="rotulo">Energia gerada no período</div>
+            <div class="nota">{{ unidades_ativas }} de {{ unidades_totais }} sistemas geraram em {{ mes_final }}</div>
+        </div>
+        <div class="indicador">
+            <div class="valor">{{ totais_gerada.economia | moeda_curta }}</div>
+            <div class="rotulo">Economia na conta de energia</div>
+            <div class="nota">Tarifa fora ponta de {{ tarifa_final | moeda(4) }} por kWh em {{ mes_final }}</div>
+        </div>
+        <div class="indicador">
+            <div class="valor">{{ totais_gerada.emissao | numero(2) }}<small>tCO2</small></div>
+            <div class="rotulo">Emissões evitadas</div>
+            <div class="nota">Fator de {{ fator_final | numero(4) }} tCO2 por MWh em {{ mes_final }}</div>
+        </div>
+    </div>
+
+    <div class="secao">
+        <h2>Geração mês a mês <em>kWh por unidade geradora</em></h2>
+        <img class="grafico" src="{{ graficos_gerada.energia }}" alt="Geração mensal">
+    </div>
+
+    <div class="secao">
+        <h2>Leitura do período</h2>
+        <div class="comentarios">
+            {% for texto in comentarios %}<p>{{ texto }}</p>{% endfor %}
+        </div>
+    </div>
+
+    <div class="assinatura">
+        <div>{{ relatorio.equipe }}</div>
+        <div>
+            {% if relatorio.autor %}Elaborado por <b>{{ relatorio.autor }}</b>{% endif %}
+            {% if relatorio.revisor %} &nbsp; Revisado por <b>{{ relatorio.revisor }}</b>{% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Página 2: o que a inoperância custou -->
+<div class="pagina">
+    {{ topo("Perdas por inoperância", "Estimativa do que os sistemas parados deixaram de gerar") }}
+
+    <div class="faixa perdas">
+        <div class="indicador">
+            <div class="valor">{{ totais_perdida.energia | energia_curta }}<small>{{ totais_perdida.energia | unidade_energia }}</small></div>
+            <div class="rotulo">Geração não realizada</div>
+            <div class="nota">{{ proporcao_perda }} do potencial do período</div>
+        </div>
+        <div class="indicador">
+            <div class="valor">{{ totais_perdida.economia | moeda_curta }}</div>
+            <div class="rotulo">Economia não obtida</div>
+            <div class="nota">Valor que seguiu sendo pago à distribuidora</div>
+        </div>
+        <div class="indicador">
+            <div class="valor">{{ totais_perdida.emissao | numero(2) }}<small>tCO2</small></div>
+            <div class="rotulo">Emissões não evitadas</div>
+            <div class="nota">Energia suprida pela rede no lugar da geração local</div>
+        </div>
+    </div>
+
+    <div class="duas-colunas">
+        <div class="secao lado">
+            <h2>Geração perdida mês a mês <em>kWh por equipamento parado</em></h2>
+            <img class="grafico" src="{{ graficos_perdida.energia }}" alt="Geração perdida">
+        </div>
+        <div class="secao coluna-estreita">
+            <h2>Disponibilidade <em>gerado sobre potencial</em></h2>
+            <img class="grafico" src="{{ grafico_disponibilidade }}" alt="Disponibilidade por unidade">
+        </div>
+    </div>
+
+    <div class="secao">
+        <h2>Desempenho por unidade <em>acumulado do período</em></h2>
+            <table class="unidades">
+                <thead>
+                    <tr>
+                        <th>Unidade</th>
+                        <th>Gerado (kWh)</th>
+                        <th>Perdido (kWh)</th>
+                        <th>Economia</th>
+                        <th>Disponibilidade</th>
+                        <th>Meses sem gerar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for linha in tabela_unidades %}
+                    <tr class="{{ 'parada' if linha.disponibilidade < 0.6 else '' }}">
+                        <td class="unidade">{{ linha.unidade }}<span class="grupo">{{ linha.grupo }}</span></td>
+                        <td>{{ linha.energia | numero(0) }}</td>
+                        <td>{{ linha.perdida | numero(0) }}</td>
+                        <td>{{ linha.economia | moeda(0) }}</td>
+                        <td>{{ (linha.disponibilidade * 100) | numero(0) }}%</td>
+                        <td>{{ linha.meses_parados }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+    </div>
+</div>
+
+<!-- Página 3: desdobramento financeiro e ambiental -->
+<div class="pagina">
+    {{ topo("Economia e emissões", "Desdobramento mensal dos indicadores financeiros e ambientais") }}
+
+    <div class="secao duas-colunas">
+        <div class="lado">
+            <h2>Economia obtida <em>cores por unidade, como na página 1</em></h2>
+            <img class="grafico" src="{{ graficos_gerada.economia }}" alt="Economia obtida">
+        </div>
+        <div class="lado">
+            <h2>Economia não obtida <em>cores por equipamento, como na página 2</em></h2>
+            <img class="grafico" src="{{ graficos_perdida.economia }}" alt="Economia perdida">
+        </div>
+    </div>
+
+    <div class="secao duas-colunas">
+        <div class="lado">
+            <h2>Emissões evitadas <em>tCO2 por mês</em></h2>
+            <img class="grafico" src="{{ graficos_gerada.emissao }}" alt="Emissões evitadas">
+        </div>
+        <div class="lado">
+            <h2>Emissões não evitadas <em>tCO2 por mês</em></h2>
+            <img class="grafico" src="{{ graficos_perdida.emissao }}" alt="Emissões adicionais">
+        </div>
+    </div>
+
+    <div class="secao metodo">
+        <h2>Como os indicadores são calculados</h2>
+        <div class="comentarios">
+            <p>A economia de cada mês é a energia medida multiplicada pela tarifa fora
+            ponta vigente naquele mês. As emissões usam o fator do Sistema Interligado
+            Nacional do mesmo mês, em tCO2 por MWh. Nenhum valor é copiado de relatórios
+            anteriores: ao mudar o período, tudo é recalculado a partir das leituras.</p>
+            <p>A geração perdida é a estimativa do que cada equipamento parado teria
+            produzido no período de inoperância, e recebe o mesmo tratamento financeiro e
+            ambiental. A disponibilidade é a razão entre a energia gerada e a soma entre
+            gerada e perdida, de modo que 100% indica nenhum registro de parada.</p>
+        </div>
+    </div>
+</div>
+
+{% if secoes_anexo %}
+<div class="pagina">
+    {{ topo("Anexo: vistorias técnicas", "Registro fotográfico das inspeções de campo") }}
+    {% for secao in secoes_anexo %}
+    <div class="secao-anexo">
+        <h3>{{ secao.titulo }}</h3>
+        <div class="galeria">
+            {% for figura in secao.figuras %}
+            <div class="figura">
+                <img src="{{ figura.imagem }}" alt="{{ figura.legenda }}">
+                <div class="legenda"><b>Figura {{ figura.numero }}</b>{{ figura.legenda }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+</body>
+</html>

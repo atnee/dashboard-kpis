@@ -1,0 +1,246 @@
+@page {
+    size: A4 landscape;
+    margin: 13mm 14mm 12mm 14mm;
+
+    @bottom-left {
+        content: "Centro de Excelência em Eficiência Energética da Amazônia";
+        font-family: Inter, Carlito, "DejaVu Sans", sans-serif;
+        font-size: 6.4pt;
+        color: #93A09A;
+        vertical-align: top;
+        padding-top: 3mm;
+    }
+    @bottom-right {
+        content: counter(page) " de " counter(pages);
+        font-family: Inter, Carlito, "DejaVu Sans", sans-serif;
+        font-size: 6.4pt;
+        color: #93A09A;
+        vertical-align: top;
+        padding-top: 3mm;
+    }
+}
+
+:root {
+    --tinta: #16211C;
+    --suave: #6B7A72;
+    --tenue: #93A09A;
+    --verde: #1E5A43;
+    --verde-claro: #EDF3EF;
+    --latao: #A3761D;
+    --latao-claro: #FAF4E7;
+    --grade: #E2E7E2;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: Inter, Carlito, "DejaVu Sans", sans-serif;
+    font-size: 7.4pt;
+    line-height: 1.45;
+    color: var(--tinta);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.pagina { page-break-after: always; }
+.pagina:last-child { page-break-after: auto; }
+
+/* Cabeçalho */
+
+.topo {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1.6pt solid var(--verde);
+    padding-bottom: 2mm;
+    margin-bottom: 4mm;
+}
+
+.topo .identidade { display: flex; align-items: flex-end; gap: 4mm; }
+
+.topo .marca {
+    font-size: 12.5pt;
+    font-weight: 700;
+    letter-spacing: -0.2pt;
+    color: var(--verde);
+    line-height: 1;
+}
+
+.topo .marca img { height: 9mm; display: block; }
+
+.topo .assunto {
+    font-size: 9pt;
+    white-space: nowrap;
+    font-weight: 600;
+    line-height: 1.2;
+    padding-bottom: 0.3mm;
+}
+
+.topo .assunto span {
+    display: block;
+    font-size: 7pt;
+    font-weight: 400;
+    color: var(--suave);
+}
+
+.topo .recorte { text-align: right; line-height: 1.3; }
+
+.topo .recorte .janela {
+    font-size: 10pt;
+    font-weight: 600;
+    color: var(--verde);
+}
+
+.topo .recorte .emissao { font-size: 6.6pt; color: var(--tenue); }
+
+/* Faixa de indicadores */
+
+.faixa { display: flex; gap: 7mm; margin-bottom: 4mm; }
+
+.faixa .indicador { flex: 1; border-top: 1.2pt solid var(--verde); padding-top: 2mm; }
+
+.faixa.perdas .indicador { border-top-color: var(--latao); }
+
+.faixa .indicador .valor {
+    font-size: 19pt;
+    font-weight: 700;
+    letter-spacing: -0.6pt;
+    line-height: 1.05;
+    color: var(--verde);
+}
+
+.faixa.perdas .indicador .valor { color: var(--latao); }
+
+.faixa .indicador .valor small {
+    font-size: 9pt;
+    font-weight: 500;
+    letter-spacing: 0;
+    margin-left: 1mm;
+    color: var(--suave);
+}
+
+.faixa .indicador .rotulo { font-size: 7.2pt; font-weight: 600; margin-top: 1mm; }
+
+.faixa .indicador .nota { font-size: 6.6pt; color: var(--suave); }
+
+/* Blocos de conteúdo */
+
+.secao { margin-bottom: 3.5mm; }
+
+.secao > h2 {
+    font-size: 8.4pt;
+    font-weight: 600;
+    margin: 0 0 2.5mm 0;
+    padding-bottom: 1.2mm;
+    border-bottom: 0.5pt solid var(--grade);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.secao > h2 em {
+    font-style: normal;
+    font-size: 6.8pt;
+    font-weight: 400;
+    color: var(--suave);
+}
+
+.grafico { width: 100%; display: block; }
+
+.duas-colunas { display: flex; gap: 7mm; align-items: flex-start; }
+
+.duas-colunas > .lado { flex: 1; }
+
+.coluna-estreita { width: 86mm; flex: none; }
+
+/* Comentários */
+
+.comentarios { columns: 2; column-gap: 8mm; }
+
+.comentarios p {
+    margin: 0 0 2mm 0;
+    padding-left: 3mm;
+    border-left: 1pt solid var(--grade);
+    text-align: left;
+    break-inside: avoid;
+    color: #253029;
+}
+
+/* Tabela por unidade */
+
+table.unidades { width: 100%; border-collapse: collapse; font-size: 6.6pt; }
+
+table.unidades th {
+    text-align: right;
+    font-weight: 600;
+    color: var(--suave);
+    border-bottom: 0.8pt solid var(--grade);
+    padding: 0 1.5mm 1.2mm 1.5mm;
+}
+
+table.unidades th:first-child, table.unidades td:first-child { text-align: left; }
+
+table.unidades td {
+    text-align: right;
+    padding: 0.7mm 1.5mm;
+    border-bottom: 0.4pt solid #F0F3F0;
+}
+
+table.unidades td.unidade { font-weight: 600; }
+
+table.unidades td .grupo {
+    font-weight: 400;
+    font-size: 6.2pt;
+    color: var(--tenue);
+    margin-left: 1.5mm;
+}
+
+table.unidades tr.parada td { color: var(--latao); }
+
+/* Assinatura */
+
+.assinatura {
+    margin-top: 4mm;
+    padding-top: 2mm;
+    border-top: 0.5pt solid var(--grade);
+    display: flex;
+    justify-content: space-between;
+    font-size: 6.8pt;
+    color: var(--suave);
+}
+
+.assinatura b { color: var(--tinta); font-weight: 600; }
+
+/* Anexo */
+
+.galeria { display: flex; flex-wrap: wrap; gap: 4mm; }
+
+.figura { width: 60mm; break-inside: avoid; }
+
+.figura img {
+    width: 100%;
+    height: 38mm;
+    object-fit: cover;
+    display: block;
+    border-radius: 1mm;
+}
+
+.figura .legenda { font-size: 6.8pt; margin-top: 1.2mm; color: #253029; }
+
+.figura .legenda b { font-weight: 600; color: var(--verde); margin-right: 1mm; }
+
+.secao-anexo { margin-bottom: 4mm; }
+
+.secao-anexo h3 {
+    font-size: 7.8pt;
+    font-weight: 600;
+    margin: 0 0 2mm 0;
+    padding-bottom: 1mm;
+    border-bottom: 0.5pt solid var(--grade);
+}
+
+.vazio { color: var(--tenue); font-size: 7pt; }
+
+.metodo { margin-top: 2mm; }
+
+.metodo .comentarios p { color: var(--suave); font-size: 7pt; }
