@@ -6,7 +6,7 @@ import sqlite3
 import unicodedata
 from pathlib import Path
 
-CAMINHO_PADRAO = Path("dados/kpi.db")
+from .config import BANCO as CAMINHO_PADRAO
 
 ESQUEMA = """
 PRAGMA foreign_keys = ON;

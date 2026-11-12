@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: dashboard-kpis
+    runtime: docker
+    plan: starter
+    branch: main
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: KPI_STORAGE_DIR
+        value: /app/storage
+      - key: KPI_REQUIRE_AUTH
+        value: "1"
+      - key: KPI_ACCESS_PASSWORD
+        sync: false
+    disk:
+      name: kpi-data
+      mountPath: /app/storage
+      sizeGB: 1

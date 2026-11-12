@@ -39,6 +39,47 @@ nova. As quatro abas cobrem o ciclo completo:
 
 ## Instalação
 
+### Publicação com armazenamento persistente
+
+O repositório inclui `Dockerfile` e `render.yaml` para executar o aplicativo
+completo no Render, com banco SQLite, fotos e relatórios em um disco persistente
+de 1 GB. O plano configurado é **Starter (pago)**. Confira o custo apresentado
+pelo Render antes de confirmar a criação do serviço.
+
+[Publicar no Render](https://render.com/deploy?repo=https://github.com/atnee/dashboard-kpis)
+
+1. Conecte sua conta do Render ao GitHub e abra o link acima.
+2. Defina `KPI_ACCESS_PASSWORD` com uma senha forte e exclusiva. Não grave a
+   senha no código nem a compartilhe no repositório.
+3. Confira o plano e o disco e confirme a publicação.
+4. Abra o endereço HTTPS exibido pelo Render e entre com a senha definida.
+5. Importe `dados/kpis_energia_por_unidade.xlsx` na barra lateral para carregar
+   as leituras iniciais. A planilha está disponível neste repositório.
+
+O endereço final é atribuído pelo Render e só estará disponível depois que a
+publicação terminar. GitHub Pages não executa este aplicativo Python.
+
+`KPI_STORAGE_DIR=/app/storage` direciona todos os arquivos gerados para o volume
+persistente. Atualizações do código preservam esses dados; excluir o disco ou
+o serviço pode removê-los. Faça cópias de segurança periódicas do volume, com
+o aplicativo parado ou usando a API de backup do SQLite para o banco.
+O disco exige uma única instância do aplicativo. A senha dá acesso completo
+ao painel, incluindo edição; compartilhe-a apenas com a equipe autorizada.
+
+Para executar em outro servidor com Docker:
+
+```bash
+docker build -t dashboard-kpis .
+docker run --env-file .env -p 8501:8501 -v kpi-data:/app/storage dashboard-kpis
+```
+
+Crie `.env` localmente com `KPI_STORAGE_DIR=/app/storage`,
+`KPI_REQUIRE_AUTH=1` e `KPI_ACCESS_PASSWORD` com a senha escolhida.
+O arquivo `.env` é ignorado pelo Git. Ao publicar fora do Render, configure
+HTTPS no servidor. Os atalhos locais continuam funcionando sem senha por padrão.
+
+### Execução local
+
 ```bash
 pip install -r requirements.txt
 ```

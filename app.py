@@ -10,19 +10,41 @@ período, escrever os comentários, anexar as fotos de vistoria e exportar o PDF
 from __future__ import annotations
 
 from datetime import datetime
+import hmac
+import os
 from pathlib import Path
+from uuid import uuid4
 
 import pandas as pd
 import streamlit as st
 
 from kpi_fv import calculo, comentarios as mod_comentarios, db, importador, relatorio
 from kpi_fv.formato import moeda, numero, percentual
+from kpi_fv.config import BANCO, DIR_DADOS, DIR_FOTOS, DIR_SAIDA
 
-BANCO = Path("dados/kpi.db")
-DIR_FOTOS = Path("dados/fotos")
-DIR_SAIDA = Path("saida")
 
 st.set_page_config(page_title="KPI fotovoltaico", page_icon="◧", layout="wide")
+
+# O ambiente publicado exige uma senha antes de abrir o banco ou os formulários.
+senha_configurada = os.environ.get("KPI_ACCESS_PASSWORD", "")
+if os.environ.get("KPI_REQUIRE_AUTH") == "1" and not senha_configurada:
+    st.error("Configure a senha de acesso na hospedagem para liberar o aplicativo.")
+    st.stop()
+if senha_configurada and not st.session_state.get("autenticado", False):
+    st.title("Indicadores dos sistemas fotovoltaicos")
+    with st.form("acesso"):
+        senha = st.text_input("Senha de acesso", type="password")
+        entrar = st.form_submit_button("Entrar")
+    if entrar:
+        if hmac.compare_digest(senha.encode(), senha_configurada.encode()):
+            st.session_state["autenticado"] = True
+            st.rerun()
+        else:
+            st.error("Senha incorreta.")
+    st.stop()
+if senha_configurada and st.sidebar.button("Sair"):
+    st.session_state.clear()
+    st.rerun()
 
 st.markdown(
     """
@@ -76,7 +98,7 @@ with st.sidebar:
     enviado = st.file_uploader("Planilha de leituras (.xlsx)", type=["xlsx", "xlsm"])
     if enviado is not None and st.button("Importar planilha", type="primary",
                                          width="stretch"):
-        destino = Path("dados") / enviado.name
+        destino = DIR_DADOS / f"{uuid4().hex}_{Path(enviado.name).name}"
         destino.parent.mkdir(parents=True, exist_ok=True)
         destino.write_bytes(enviado.getbuffer())
         resultado = importador.importar_planilha(conn, destino)
@@ -185,7 +207,8 @@ with aba_relatorio:
     if gerar or prever:
         caminho_logo = None
         if logo is not None:
-            caminho_logo = Path("dados") / f"logo_{logo.name}"
+            DIR_DADOS.mkdir(parents=True, exist_ok=True)
+            caminho_logo = DIR_DADOS / f"logo_{uuid4().hex}{Path(logo.name).suffix}"
             caminho_logo.write_bytes(logo.getbuffer())
         relatorio_id = relatorio.criar_relatorio(
             conn, inicio, fim, titulo=titulo, subtitulo=subtitulo,
@@ -299,7 +322,7 @@ with aba_vistorias:
         if imagens and st.button("Anexar ao relatório", type="primary"):
             DIR_FOTOS.mkdir(parents=True, exist_ok=True)
             for i, imagem in enumerate(imagens, start=1):
-                caminho = DIR_FOTOS / f"r{relatorio_id}_{datetime.now():%H%M%S}_{i}_{imagem.name}"
+                caminho = DIR_FOTOS / f"r{relatorio_id}_{uuid4().hex}{Path(imagem.name).suffix}"
                 caminho.write_bytes(imagem.getbuffer())
                 relatorio.adicionar_foto(conn, relatorio_id, caminho, secao=secao,
                                          legenda=legenda, unidade=unidade, ordem=i)

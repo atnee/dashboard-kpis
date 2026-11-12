@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.env
+.env.*
+.streamlit/secrets.toml
+*.db
+*.db-*
+storage/
+dados/*
+!dados/.gitkeep
+!dados/kpis_energia_por_unidade.xlsx
+saida/*
+!saida/.gitkeep
